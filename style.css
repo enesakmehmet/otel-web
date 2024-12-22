@@ -519,3 +519,49 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 8px;
     display: block;
 }
+
+/* Kullanıcı menüsü */
+.user-dropdown {
+    min-width: 200px;
+}
+
+/* Ödeme formu */
+.payment-summary {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#cardNumber {
+    letter-spacing: 1px;
+}
+
+/* Dinamik fiyat gösterimi */
+.price-breakdown {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.season-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 8px;
+}
+
+.season-high {
+    background: #dc3545;
+    color: white;
+}
+
+.season-medium {
+    background: #ffc107;
+    color: black;
+}
+
+.season-low {
+    background: #28a745;
+    color: white;
+}

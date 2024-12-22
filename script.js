@@ -909,3 +909,154 @@ function confirmSpaBooking() {
     alert('Randevunuz başarıyla oluşturuldu!');
     bootstrap.Modal.getInstance(document.getElementById('spaModal')).hide();
 }
+
+// Kullanıcı İşlemleri
+class UserService {
+    constructor() {
+        this.currentUser = null;
+    }
+
+    async login(email, password) {
+        try {
+            // API çağrısı simülasyonu
+            const response = await new Promise(resolve => setTimeout(() => {
+                resolve({
+                    success: true,
+                    user: {
+                        id: 1,
+                        name: 'Test Kullanıcı',
+                        email: email,
+                        points: 100
+                    }
+                });
+            }, 1000));
+
+            if (response.success) {
+                this.currentUser = response.user;
+                this.updateUI();
+                return true;
+            }
+        } catch (error) {
+            console.error('Giriş hatası:', error);
+            return false;
+        }
+    }
+
+    logout() {
+        this.currentUser = null;
+        this.updateUI();
+    }
+
+    updateUI() {
+        const guestMenu = document.getElementById('guestMenu');
+        const userMenu = document.getElementById('userMenu');
+        const userName = document.getElementById('userName');
+
+        if (this.currentUser) {
+            guestMenu.style.display = 'none';
+            userMenu.style.display = 'block';
+            userName.textContent = this.currentUser.name;
+        } else {
+            guestMenu.style.display = 'block';
+            userMenu.style.display = 'none';
+            userName.textContent = 'Hesabım';
+        }
+    }
+}
+
+// Ödeme İşlemleri
+class PaymentService {
+    constructor() {
+        this.paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    }
+
+    async processPayment(paymentDetails) {
+        try {
+            // Sanal POS entegrasyonu simülasyonu
+            const response = await new Promise(resolve => setTimeout(() => {
+                resolve({
+                    success: true,
+                    transactionId: 'TRX' + Math.random().toString(36).substr(2, 9)
+                });
+            }, 2000));
+
+            if (response.success) {
+                alert('Ödeme başarıyla tamamlandı!');
+                return response.transactionId;
+            }
+        } catch (error) {
+            console.error('Ödeme hatası:', error);
+            alert('Ödeme işlemi başarısız!');
+            return null;
+        }
+    }
+
+    showPaymentModal(bookingDetails) {
+        document.getElementById('bookingSummary').innerHTML = `
+            <p>Oda: ${bookingDetails.roomName}</p>
+            <p>Tarih: ${bookingDetails.checkIn} - ${bookingDetails.checkOut}</p>
+            <p>Kişi Sayısı: ${bookingDetails.guests}</p>
+        `;
+        document.getElementById('totalAmount').textContent = `${bookingDetails.totalPrice} TL`;
+        this.paymentModal.show();
+    }
+}
+
+// Dinamik Fiyatlandırma
+class PricingService {
+    calculatePrice(basePrice, checkIn, checkOut, guests) {
+        let totalPrice = basePrice;
+
+        // Sezon faktörü
+        const season = this.getSeason(checkIn);
+        totalPrice *= season.factor;
+
+        // Doluluk oranı faktörü
+        const occupancy = this.getOccupancyRate(checkIn, checkOut);
+        totalPrice *= (1 + (occupancy / 100) * 0.5);
+
+        // Kişi sayısı faktörü
+        if (guests > 2) {
+            totalPrice *= (1 + ((guests - 2) * 0.2));
+        }
+
+        return Math.round(totalPrice);
+    }
+
+    getSeason(date) {
+        const month = new Date(date).getMonth();
+        if (month >= 5 && month <= 8) return { name: 'Yüksek Sezon', factor: 1.5 };
+        if (month >= 9 && month <= 11) return { name: 'Orta Sezon', factor: 1.2 };
+        return { name: 'Düşük Sezon', factor: 1 };
+    }
+
+    getOccupancyRate(checkIn, checkOut) {
+        // Doluluk oranı simülasyonu
+        return Math.floor(Math.random() * 100);
+    }
+}
+
+// Servisleri başlat
+const userService = new UserService();
+const paymentService = new PaymentService();
+const pricingService = new PricingService();
+
+// Event Listeners
+document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = e.target.elements[0].value;
+    const password = e.target.elements[1].value;
+    await userService.login(email, password);
+    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+});
+
+document.getElementById('paymentForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const result = await paymentService.processPayment({
+        cardNumber: e.target.elements.cardNumber.value,
+        // diğer kart detayları
+    });
+    if (result) {
+        paymentService.paymentModal.hide();
+    }
+});
